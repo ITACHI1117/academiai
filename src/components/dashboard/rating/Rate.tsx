@@ -1,13 +1,19 @@
 "use client";
+import { useToast } from "@/components/ui/toast";
+import { usePostFeedback } from "@/queries/feedback.queries";
 import { MessageSquare, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const Rate = () => {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [feedback, setFeedback] = useState("");
   const router = useRouter();
+
+  const { toast } = useToast();
+
+  const FeedBackQuery = usePostFeedback();
 
   const handleStarClick = (starIndex: number) => {
     setRating(starIndex);
@@ -26,10 +32,38 @@ export const Rate = () => {
       alert("Please provide a rating before submitting.");
       return;
     }
+    FeedBackQuery.mutate({
+      message: feedback,
+      rating: rating,
+    });
     // Handle feedback submission
     console.log("Feedback submitted:", { rating, feedback });
-    alert("Thank you for your feedback!");
+    // alert("Thank you for your feedback!");
   };
+
+  useEffect(() => {
+    if (FeedBackQuery.isSuccess) {
+      toast({
+        title: "Feedback submitted successfully",
+        variant: "success",
+      });
+      router.push("/dashboard");
+    }
+  }, [FeedBackQuery.isSuccess]);
+
+  useEffect(() => {
+    if (FeedBackQuery.isError) {
+      toast({
+        title: "Error submitting feedback",
+        description:
+          FeedBackQuery.error?.message ||
+          FeedBackQuery.error?.data?.error ||
+          "Something went wrong",
+        variant: "destructive",
+      });
+      console.log("Error submitting feedback", FeedBackQuery.error);
+    }
+  }, [FeedBackQuery.isError, FeedBackQuery.error]);
 
   const handleSkip = () => {
     // Handle skip action
@@ -155,14 +189,14 @@ export const Rate = () => {
 
             <button
               onClick={handleSubmit}
-              disabled={rating === 0}
+              disabled={rating === 0 || FeedBackQuery.isPending}
               className={`px-8 py-3 rounded-lg font-semibold transition-all duration-200 cursor-pointer ${
                 rating === 0
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                   : "bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 transform hover:scale-105 shadow-lg hover:shadow-xl"
               }`}
             >
-              Submit Feedback
+              {FeedBackQuery.isPending ? "Submitting..." : "Submit Feedback"}
             </button>
           </div>
         </div>

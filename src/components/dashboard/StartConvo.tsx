@@ -1,6 +1,9 @@
 import { ArrowLeft, MessageSquare } from "lucide-react";
 import { useToast } from "../ui/toast";
 import { useRouter } from "next/navigation";
+import { useStartConversation } from "@/queries/conversation.queries";
+import { useEffect } from "react";
+import { useConversationState } from "@/store/conversationStore";
 
 export const StartConvo = ({
   setView,
@@ -9,6 +12,10 @@ export const StartConvo = ({
 }) => {
   const { toast } = useToast();
   const router = useRouter();
+
+  const StartConvoQuery = useStartConversation();
+  const { setConversationState } = useConversationState();
+
   const handleStartConvo = () => {
     toast({
       title: "Starting Conversation",
@@ -16,8 +23,24 @@ export const StartConvo = ({
       duration: 4000,
       variant: "info",
     });
-    router.push("/dashboard/conversation");
+    StartConvoQuery.mutate();
+    // router.push("/dashboard/conversation");
   };
+
+  useEffect(() => {
+    if (StartConvoQuery.isSuccess) {
+      console.log(StartConvoQuery.data);
+      setConversationState(StartConvoQuery.data.data);
+      toast({
+        title: "Conversation Started",
+        description: "Redirecting to AI chat...",
+        duration: 4000,
+        variant: "success",
+      });
+      router.push("/dashboard/conversation");
+    }
+  }, [StartConvoQuery.isSuccess]);
+
   return (
     <div className="min-h-screen bg-transparent  flex items-center justify-center">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

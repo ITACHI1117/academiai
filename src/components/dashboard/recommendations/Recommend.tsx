@@ -1,4 +1,5 @@
 "use client";
+import { useRecommendationState } from "@/store/recommendationStore";
 import {
   ArrowRight,
   Award,
@@ -10,14 +11,19 @@ import {
   ThumbsUp,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const Recommend = () => {
   //   const [selectedFilter, setSelectedFilter] = useState("all");
 
   const router = useRouter();
+  const { recommendations } = useRecommendationState();
 
-  const recommendations = [
+  useEffect(() => {
+    console.log(recommendations);
+  }, [recommendations]);
+
+  const recommendationss = [
     {
       programName: "Master of Science in Computer Science",
       university: "University of Lagos",
@@ -78,23 +84,23 @@ export const Recommend = () => {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Summary Card */}
         <div className="bg-gradient-to-r from-green-400 to-green-600  p-10 text-white mb-8">
-          <div className="grid md:grid-cols-3 gap-6 text-center">
+          <div className="grid md:grid-cols-1 gap-6 text-center">
             <div>
               <div className="text-3xl font-bold mb-2">
                 {recommendations.length}
               </div>
               <div className="text-blue-100">Programs Found</div>
             </div>
-            <div>
+            {/* <div>
               <div className="text-3xl font-bold mb-2">
                 {Math.max(...recommendations.map((r) => r.matchScore))}%
               </div>
               <div className="text-blue-100">Best Match</div>
-            </div>
-            <div>
+            </div> */}
+            {/* <div>
               <div className="text-3xl font-bold mb-2">1</div>
               <div className="text-blue-100">University</div>
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -125,68 +131,71 @@ export const Recommend = () => {
 
         {/* Recommendations List */}
         <div className="space-y-6">
-          {recommendations.map((rec, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300"
-            >
-              {/* Card Header */}
-              <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-8 py-6 border-b border-gray-200">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-                  <div className="flex-1">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                      {rec.programName}
-                    </h3>
-                    <div className="flex items-center space-x-4 text-gray-600">
-                      <div className="flex items-center">
-                        <MapPin className="w-4 h-4 mr-2" />
-                        {rec.university}
-                      </div>
-                      <div className="flex items-center">
-                        <BookOpen className="w-4 h-4 mr-2" />
-                        {rec.duration}
-                      </div>
-                      <div className="flex items-center">
-                        <GraduationCap className="w-4 h-4 mr-2" />
-                        {rec.type}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col items-end space-y-2">
-                    <div
-                      className={`px-4 py-2 rounded-full border ${getMatchScoreColor(
-                        rec.matchScore
-                      )}`}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <Award className="w-4 h-4" />
-                        <span className="font-bold">
-                          {rec.matchScore}% Match
-                        </span>
+          {recommendations &&
+            recommendations.map((rec, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300"
+              >
+                {/* Card Header */}
+                <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-8 py-6 border-b border-gray-200">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                    <div className="flex-1">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                        {rec.programName}
+                      </h3>
+                      <div className="flex items-center space-x-4 text-gray-600">
+                        <div className="flex items-center">
+                          <MapPin className="w-4 h-4 mr-2" />
+                          {rec.university}
+                        </div>
+                        <div className="flex items-center">
+                          <BookOpen className="w-4 h-4 mr-2" />
+                          {rec.duration}
+                        </div>
+                        <div className="flex items-center">
+                          <GraduationCap className="w-4 h-4 mr-2" />
+                          {rec.type}
+                        </div>
                       </div>
                     </div>
-                    {rec.note && (
-                      <div className="text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
-                        {rec.note}
+
+                    <div className="flex flex-col items-end space-y-2">
+                      <div
+                        className={`px-4 py-2 rounded-full border ${
+                          rec.matchScore && getMatchScoreColor(rec.matchScore)
+                        }`}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <Award className="w-4 h-4" />
+                          <span className="font-bold">
+                            {rec.matchScore && rec.matchScore}% Match
+                          </span>
+                        </div>
                       </div>
-                    )}
+                      {rec.note && (
+                        <div className="text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
+                          {rec.note}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Card Content */}
-              <div className="p-8">
-                <div className="mb-6">
-                  <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
-                    <MessageSquare className="w-4 h-4 mr-2 text-blue-600" />
-                    Why This Program is Perfect for You
-                  </h4>
-                  <p className="text-gray-700 leading-relaxed">{rec.reason}</p>
-                </div>
+                {/* Card Content */}
+                <div className="p-8">
+                  <div className="mb-6">
+                    <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
+                      <MessageSquare className="w-4 h-4 mr-2 text-blue-600" />
+                      Why This Program is Perfect for You
+                    </h4>
+                    <p className="text-gray-700 leading-relaxed">
+                      {rec.reason}
+                    </p>
+                  </div>
 
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+                  {/* Action Buttons */}
+                  {/* <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
                   <button className="flex-1 bg-primary from-green-300 to-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-[1.02] shadow-md hover:shadow-lg">
                     Learn More About Program
                     <ArrowRight className="inline-block w-4 h-4 ml-2" />
@@ -199,41 +208,56 @@ export const Recommend = () => {
                       <ThumbsDown className="w-4 h-4 text-gray-600" />
                     </button>
                   </div>
+                </div> */}
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
 
         {/* Feedback Section */}
-        <div className="mt-12 bg-white rounded-2xl shadow-lg border border-gray-200 p-8 text-center">
-          <div className="max-w-2xl mx-auto">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              How do these recommendations look?
-            </h3>
-            <p className="text-gray-600 mb-6">
-              Your feedback helps us improve our AI recommendations for future
-              students. Let us know what you think about these suggestions.
-            </p>
-            <button
-              onClick={handleFeedback}
-              className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
-            >
-              <MessageSquare className="inline-block w-5 h-5 mr-2" />
-              Provide Feedback
-            </button>
+        {recommendations && recommendations.length > 0 ? (
+          <div className="mt-12 bg-white rounded-2xl shadow-lg border border-gray-200 p-8 text-center">
+            <div className="max-w-2xl mx-auto">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                How do these recommendations look?
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Your feedback helps us improve our AI recommendations for future
+                students. Let us know what you think about these suggestions.
+              </p>
+              <button
+                onClick={handleFeedback}
+                className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
+              >
+                <MessageSquare className="inline-block w-5 h-5 mr-2" />
+                Provide Feedback
+              </button>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="mt-12 bg-white rounded-2xl shadow-lg border border-gray-200 p-8 text-center">
+            <p className="text-gray-600">
+              No recommendations available at the moment. Please complete the
+              assessment to receive personalized program suggestions.
+            </p>
+          </div>
+        )}
 
         {/* Additional Actions */}
         <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
           {/* <button className="bg-white border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:border-gray-400 hover:bg-gray-50 transition-all duration-200">
             Save Recommendations
           </button>*/}
-          <button className="bg-white border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:border-gray-400 hover:bg-gray-50 transition-all duration-200">
+          <button
+            onClick={() => router.push("/dashboard")}
+            className="cursor-pointer bg-white border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:border-gray-400 hover:bg-gray-50 transition-all duration-200"
+          >
             Go To Dashboard
           </button>
-          <button className="bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200">
+          <button
+            onClick={() => router.push("/dashboard")}
+            className="cursor-pointer bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
+          >
             Start New Assessment
           </button>
         </div>

@@ -1,12 +1,13 @@
 import axios from "axios";
+import Cookies from "js-cookie";
 
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BASEURL,
 });
 
 axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  const refreshToken = localStorage.getItem("refreshToken");
+  const token = Cookies.get("accessToken");
+  const refreshToken = Cookies.get("refreshToken");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

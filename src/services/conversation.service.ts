@@ -2,7 +2,7 @@ import axiosInstance from "@/config/axios";
 
 export interface ConversationPayload {
   conversationId: string;
-  question: string;
+  userInput: string;
 }
 
 export const startConversation = async () => {
@@ -15,10 +15,10 @@ export const startConversation = async () => {
 };
 
 export const nextConversation = async (payload: ConversationPayload) => {
+  console.log(payload);
+
   try {
-    const response = await axiosInstance.post("/conversation/next", {
-      payload,
-    });
+    const response = await axiosInstance.post("/conversation/next", payload);
     return response;
   } catch (error) {
     throw error;

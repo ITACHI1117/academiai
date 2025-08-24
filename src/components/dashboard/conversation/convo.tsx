@@ -1,4 +1,7 @@
 "use client";
+import { useNextConversation } from "@/queries/conversation.queries";
+import { useConversationState } from "@/store/conversationStore";
+import { useRecommendationState } from "@/store/recommendationStore";
 import {
   Bot,
   ChevronLeft,
@@ -7,25 +10,44 @@ import {
   User,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const Convo = () => {
+  const { conversationId, question } = useConversationState();
+  const [activeQuestion, setActiveQuestion] = useState(question);
   const [answer, setAnswer] = useState("");
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const totalQuestions = 4; //this is set to 4 for now, can be dynamic based on backend (currently it is for on the backend)
   const router = useRouter();
 
-  // Sample question - this would come from your backend
-  const question =
-    "What is your current academic background? Please tell us about your undergraduate degree, major field of study, and any relevant academic achievements.";
+  const NextQuestionQuery = useNextConversation();
+  const { setRecommendations } = useRecommendationState();
 
-  const handleNext = () => {
+  useEffect(() => {
+    console.log(question);
+    console.log(conversationId);
+  }, [question]);
+
+  // Sample question - this would come from your backend
+  //   const question =
+  //     "What is your current academic background? Please tell us about your undergraduate degree, major field of study, and any relevant academic achievements.";
+
+  const handleNext = async () => {
     if (currentQuestion < totalQuestions) {
-      setCurrentQuestion(currentQuestion + 1);
+      // Call API to get next question
+      await NextQuestionQuery.mutateAsync({
+        conversationId: conversationId,
+        userInput: answer,
+      });
+      setCurrentQuestion(currentQuestion + 1); //this is bacically used for the progress bar
       setAnswer(""); // Clear answer for next question
     } else {
+      await NextQuestionQuery.mutateAsync({
+        conversationId: conversationId,
+        userInput: answer,
+      });
       // Complete the assessment logic here
-      router.push("/dashboard/recommendations");
+      //   router.push("/dashboard/recommendations");
     }
   };
 
@@ -40,6 +62,19 @@ export const Convo = () => {
   const handleQuitConvo = () => {
     router.back();
   };
+
+  useEffect(() => {
+    if (NextQuestionQuery.isSuccess) {
+      console.log(NextQuestionQuery.data);
+      if (NextQuestionQuery.data.data.recommendations === null) {
+        setActiveQuestion(NextQuestionQuery.data.data.nextQuestion);
+      } else {
+        console.log(NextQuestionQuery.data);
+        setRecommendations(NextQuestionQuery.data.data.recommendations);
+        router.push("/dashboard/recommendations");
+      }
+    }
+  }, [NextQuestionQuery.isSuccess]);
 
   return (
     <div className="bg-transparent">
@@ -80,7 +115,7 @@ export const Convo = () => {
             <div className="flex-1">
               <div className="bg-primary p-6 border border-primary-200 ">
                 <p className="text-lg text-primary-foreground leading-relaxed">
-                  {question}
+                  {activeQuestion}
                 </p>
               </div>
             </div>
