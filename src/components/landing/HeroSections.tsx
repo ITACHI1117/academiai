@@ -6,6 +6,7 @@ import HowItWorks from "./howItWorks";
 import FeaturesFour from "../features-4";
 import CTA from "./CTA";
 import FooterSection from "../footer";
+import { Testimonials } from "./Testimonial";
 
 function HeroSections() {
   return (
@@ -15,7 +16,9 @@ function HeroSections() {
       <Features />
       <HowItWorks />
       <FeaturesFour />
+      <Testimonials />
       <CTA />
+
       <FooterSection />
     </div>
   );

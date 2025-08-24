@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useToast } from "./ui/toast";
+import { useLoginHook } from "@/hooks/useLoginHook";
 
 export default function LoginPage() {
   const { toast } = useToast();
@@ -22,10 +23,14 @@ export default function LoginPage() {
       variant: "info",
     });
   };
+
+  const { register, handleSubmit, errors, onSubmit, LoginQuery } =
+    useLoginHook();
   return (
     <section className="flex min-h-screen bg-zinc-50 px-4 py-16 md:py-32 dark:bg-transparent">
       <form
         action=""
+        onSubmit={handleSubmit(onSubmit)}
         className="bg-card m-auto h-fit w-full max-w-sm rounded-[calc(var(--radius)+.125rem)] border p-0.5 shadow-md dark:[--color-muted:var(--color-zinc-900)]"
       >
         <div className="p-8 pb-6">
@@ -101,9 +106,14 @@ export default function LoginPage() {
           <div className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="email" className="block text-sm">
-                Username
+                Email
               </Label>
-              <Input type="email" required name="email" id="email" />
+              <Input type="email" id="email" {...register("email")} />
+              {errors.email && (
+                <p className="text-sm text-red-600 pt-3">
+                  {errors.email.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-0.5">
@@ -122,14 +132,24 @@ export default function LoginPage() {
               </div>
               <Input
                 type="password"
-                required
-                name="pwd"
+                {...register("password")}
                 id="pwd"
                 className="input sz-md variant-mixed"
               />
+              {errors.password && (
+                <p className="text-sm text-red-600 pt-3">
+                  {errors.password.message}
+                </p>
+              )}
             </div>
 
-            <Button className="w-full">Sign In</Button>
+            <Button
+              disabled={LoginQuery.isPending}
+              className="w-full"
+              type="submit"
+            >
+              {LoginQuery.isPending ? "Signing In..." : "Sign In"}
+            </Button>
           </div>
         </div>
 

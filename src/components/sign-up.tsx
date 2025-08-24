@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useToast } from "./ui/toast";
+import { useSignUpHook } from "@/hooks/useSignUpHook";
 
 export default function LoginPage() {
   const { toast } = useToast();
@@ -22,9 +23,13 @@ export default function LoginPage() {
       variant: "info",
     });
   };
+
+  const { register, handleSubmit, errors, onSubmit, SignUpQuery } =
+    useSignUpHook();
   return (
     <section className="flex min-h-screen bg-zinc-50 px-4 py-16 md:py-32 dark:bg-transparent">
       <form
+        onSubmit={handleSubmit(onSubmit)}
         action=""
         className="bg-card m-auto h-fit w-full max-w-sm rounded-[calc(var(--radius)+.125rem)] border p-0.5 shadow-md dark:[--color-muted:var(--color-zinc-900)]"
       >
@@ -104,21 +109,57 @@ export default function LoginPage() {
                 <Label htmlFor="firstname" className="block text-sm">
                   Firstname
                 </Label>
-                <Input type="text" required name="firstname" id="firstname" />
+                <Input
+                  type="text"
+                  {...register("firstname")}
+                  name="firstname"
+                  id="firstname"
+                />
+                {errors.firstname && (
+                  <p className="text-sm text-red-600 pt-3">
+                    {errors.firstname.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="lastname" className="block text-sm">
                   Lastname
                 </Label>
-                <Input type="text" required name="lastname" id="lastname" />
+                <Input
+                  type="text"
+                  {...register("lastname")}
+                  name="lastname"
+                  id="lastname"
+                />
+                {errors.lastname && (
+                  <p className="text-sm text-red-600 pt-3">
+                    {errors.lastname.message}
+                  </p>
+                )}
               </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="email" className="block text-sm">
+                Email
+              </Label>
+              <Input id="email" {...register("email")} />
+              {errors.email && (
+                <p className="text-sm text-red-600 pt-3">
+                  {errors.email.message}
+                </p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="text" className="block text-sm">
                 Username
               </Label>
-              <Input type="email" required name="email" id="email" />
+              <Input type="text" id="text" {...register("username")} />
+              {errors.username && (
+                <p className="text-sm text-red-600 pt-3">
+                  {errors.username.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -127,14 +168,24 @@ export default function LoginPage() {
               </Label>
               <Input
                 type="password"
-                required
-                name="pwd"
                 id="pwd"
                 className="input sz-md variant-mixed"
+                {...register("password")}
               />
+              {errors.password && (
+                <p className="text-sm text-red-600 pt-3">
+                  {errors.password.message}
+                </p>
+              )}
             </div>
 
-            <Button className="w-full">Continue</Button>
+            <Button
+              disabled={SignUpQuery.isPending}
+              className="w-full"
+              type="submit"
+            >
+              {SignUpQuery.isPending ? "Creating Account..." : "Continue"}
+            </Button>
           </div>
         </div>
 
