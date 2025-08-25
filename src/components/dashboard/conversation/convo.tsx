@@ -1,4 +1,5 @@
 "use client";
+import { useToast } from "@/components/ui/toast";
 import { useNextConversation } from "@/queries/conversation.queries";
 import { useConversationState } from "@/store/conversationStore";
 import { useRecommendationState } from "@/store/recommendationStore";
@@ -11,6 +12,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { NotFoundConvo } from "./NotFoundConvo";
 
 export const Convo = () => {
   const { conversationId, question } = useConversationState();
@@ -23,6 +25,8 @@ export const Convo = () => {
   const NextQuestionQuery = useNextConversation();
   const { setRecommendations } = useRecommendationState();
 
+  const { toast } = useToast();
+
   useEffect(() => {
     console.log(question);
     console.log(conversationId);
@@ -33,28 +37,42 @@ export const Convo = () => {
   //     "What is your current academic background? Please tell us about your undergraduate degree, major field of study, and any relevant academic achievements.";
 
   const handleNext = async () => {
+    // Call API to get next question
+    await NextQuestionQuery.mutateAsync({
+      conversationId: conversationId,
+      userInput: answer,
+    });
+    setCurrentQuestion(currentQuestion + 1); //this is bacically used for the progress bar
+    setAnswer(""); // Clear answer for next question
     if (currentQuestion < totalQuestions) {
-      // Call API to get next question
-      await NextQuestionQuery.mutateAsync({
-        conversationId: conversationId,
-        userInput: answer,
-      });
-      setCurrentQuestion(currentQuestion + 1); //this is bacically used for the progress bar
-      setAnswer(""); // Clear answer for next question
+      // // Call API to get next question
+      // await NextQuestionQuery.mutateAsync({
+      //   conversationId: conversationId,
+      //   userInput: answer,
+      // });
+      // setCurrentQuestion(currentQuestion + 1); //this is bacically used for the progress bar
+      // setAnswer(""); // Clear answer for next question
     } else {
-      await NextQuestionQuery.mutateAsync({
-        conversationId: conversationId,
-        userInput: answer,
-      });
+      // await NextQuestionQuery.mutateAsync({
+      //   conversationId: conversationId,
+      //   userInput: answer,
+      // });
       // Complete the assessment logic here
       //   router.push("/dashboard/recommendations");
     }
   };
 
   const handlePrevious = () => {
-    if (currentQuestion > 1) {
-      setCurrentQuestion(currentQuestion - 1);
-    }
+    // if (currentQuestion > 1) {
+    //   setCurrentQuestion(currentQuestion - 1);
+    // }
+    toast({
+      title: "Previous Question",
+      description:
+        "You can't go back to the previous question. Please proceed or quit the assessment and start again.",
+      duration: 3000,
+      variant: "info",
+    });
   };
 
   const progressPercentage = (currentQuestion / totalQuestions) * 100;
@@ -69,12 +87,21 @@ export const Convo = () => {
       if (NextQuestionQuery.data.data.recommendations === null) {
         setActiveQuestion(NextQuestionQuery.data.data.nextQuestion);
       } else {
+        // Complete the assessment logic here
         console.log(NextQuestionQuery.data);
         setRecommendations(NextQuestionQuery.data.data.recommendations);
         router.push("/dashboard/recommendations");
       }
     }
   }, [NextQuestionQuery.isSuccess]);
+
+  if (
+    activeQuestion === null ||
+    activeQuestion === undefined ||
+    activeQuestion === ""
+  ) {
+    return <NotFoundConvo />;
+  }
 
   return (
     <div className="bg-transparent">
@@ -161,8 +188,8 @@ export const Convo = () => {
         <div className="flex justify-between items-center">
           <button
             onClick={handlePrevious}
-            disabled={currentQuestion === 1}
-            className={`flex items-center px-6 py-3  font-semibold transition-all duration-200 ${
+            disabled={currentQuestion === 1 || NextQuestionQuery.isPending}
+            className={`flex items-center px-6 py-3  font-semibold transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none ${
               currentQuestion === 1
                 ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                 : "bg-white border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50 transform hover:scale-105"
@@ -172,11 +199,11 @@ export const Convo = () => {
             Previous
           </button>
 
-          <div className="flex items-center space-x-2 text-sm text-gray-600">
+          <div className=" hidden md:flex items-center space-x-2 text-sm text-gray-600">
             <span>Click Here </span>
             <kbd
               onClick={handleQuitConvo}
-              className="px-2 py-1 bg-gray-100  border text-xs"
+              className="px-2 py-1 bg-red-100  border  border-red-400 text-xs cur"
             >
               Esc
             </kbd>
@@ -185,8 +212,8 @@ export const Convo = () => {
 
           <button
             onClick={handleNext}
-            disabled={answer.trim().length === 0}
-            className={`flex items-center px-6 py-3  font-semibold transition-all duration-200 cursor-pointer ${
+            disabled={answer.trim().length === 0 || NextQuestionQuery.isPending}
+            className={`flex items-center px-6 py-3  font-semibold transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:pointer-events-none ${
               answer.trim().length === 0
                 ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                 : currentQuestion === totalQuestions
@@ -195,10 +222,25 @@ export const Convo = () => {
             }`}
           >
             {currentQuestion === totalQuestions
-              ? "Complete Assessment"
-              : "Next"}
+              ? `${
+                  NextQuestionQuery.isPending
+                    ? "Submitting..."
+                    : "Complete Assessment"
+                }`
+              : `${NextQuestionQuery.isPending ? "Submitting..." : "Next"}`}
             <ChevronRight className="w-4 h-4 ml-2" />
           </button>
+        </div>
+
+        <div className=" w-full flex md:hidden items-center justify-center mt-4 space-x-2 text-sm text-gray-600">
+          <span>Click Here </span>
+          <kbd
+            onClick={handleQuitConvo}
+            className="px-2 py-1 bg-red-100  border border-red-400 text-xs"
+          >
+            Esc
+          </kbd>
+          <span>to Quit Convo</span>
         </div>
 
         {/* Help Text */}

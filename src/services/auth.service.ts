@@ -46,6 +46,7 @@ export const logout = async () => {
       // });
       Cookies.remove("accessToken");
       Cookies.remove("refreshToken");
+      window.location.reload();
       // return response;
     }
   } catch (error) {

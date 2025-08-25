@@ -63,19 +63,21 @@ export const StartConvo = ({
           postgraduate programs for you.
         </p>
 
-        <div className="md:flex w-full max-w-5xl mx-auto space-x-4 justify-center">
+        <div className="md:flex md:flex-row flex-col-reverse space-y-4 w-full max-w-5xl mx-auto space-x-4 justify-center">
           {/* Back Button */}
           <button
+            disabled={StartConvoQuery.isPending}
             onClick={() => setView("Dashboard")}
-            className="cursor-pointer bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-lg font-semibold text-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl inline-flex items-center"
+            className=" disabled:pointer-events-none disabled:opacity-50 cursor-pointer bg-transparent border border-gray-400 text-foreground px-8 py-3 rounded-lg font-semibold text-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl inline-flex items-center"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
             DashBoard
           </button>
           {/* Start Button */}
           <button
+            disabled={StartConvoQuery.isPending}
             onClick={handleStartConvo}
-            className="cursor-pointer bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-lg font-semibold text-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl inline-flex items-center"
+            className="disabled:pointer-events-none disabled:opacity-50 cursor-pointer bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-lg font-semibold text-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl inline-flex items-center"
           >
             <MessageSquare className="w-5 h-5 mr-2" />
             Start Conversation

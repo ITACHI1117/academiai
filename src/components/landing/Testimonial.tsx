@@ -6,31 +6,62 @@ import { AnimatePresence, motion } from "motion/react";
 
 const testimonials = [
   {
-    quote: "SmoothUI is my go-to for fast, beautiful UIs.",
+    quote:
+      "AcademiAI helped me find the perfect Computer Science program that aligned with my AI interests. The recommendations were spot-on!",
     avatar: "https://github.com/shadcn.png",
-    name: "Shadcn",
-    role: "Creator of shadcn/ui",
+    name: "Adebayo Ogundimu",
+    role: "Computer Science Graduate",
   },
   {
-    quote: "Incredible DX. Animations feel native!",
+    quote:
+      "I was confused about which postgraduate program to choose. AcademiAI's AI analysis made the decision crystal clear for me.",
     avatar: "https://github.com/midudev.png",
-    name: "Midudev",
-    role: "Dev & Educator",
+    name: "Chioma Nwankwo",
+    role: "Engineering Student",
   },
   {
-    quote: "The best UI kit for React I've used.",
+    quote:
+      "The personalized recommendations saved me months of research. Found my ideal Data Science program in just minutes!",
     avatar: "https://github.com/rauchg.png",
-    name: "Rauch",
-    role: "Vercel CEO",
+    name: "Ibrahim Yusuf",
+    role: "Data Analyst",
   },
   {
-    quote: "So smooth, so easy. Instantly impressive.",
+    quote:
+      "Finally, an academic advisor that understands Nigerian students. The program matches were incredibly accurate!",
     avatar: "https://github.com/pheralb.png",
-    name: "Pheralb",
-    role: "Open Source Dev",
+    name: "Funmi Adeyemi",
+    role: "Business Administration Graduate",
+  },
+  {
+    quote:
+      "AcademiAI's AI technology is revolutionary. It matched me with programs I never considered but turned out perfect!",
+    avatar: "https://github.com/shadcn.png",
+    name: "Kelechi Okoro",
+    role: "Software Developer",
+  },
+  {
+    quote:
+      "The detailed explanations for each recommendation helped me understand why certain programs fit my profile better.",
+    avatar: "https://github.com/midudev.png",
+    name: "Aisha Mohammed",
+    role: "Psychology Graduate",
+  },
+  {
+    quote:
+      "As a career changer, AcademiAI identified bridge programs that perfectly connected my background to my new goals.",
+    avatar: "https://github.com/rauchg.png",
+    name: "Samuel Okafor",
+    role: "Career Transition Specialist",
+  },
+  {
+    quote:
+      "The system understood my academic strengths and career ambitions better than any human advisor I've consulted.",
+    avatar: "https://github.com/pheralb.png",
+    name: "Blessing Emeka",
+    role: "Medical Sciences Student",
   },
 ];
-
 const DURATION = 5000; // ms
 const BAR_WIDTH = 50;
 const CIRCLE_SIZE = 12;

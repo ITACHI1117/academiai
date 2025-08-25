@@ -88,7 +88,7 @@ export const Rate = () => {
         <div className="text-center mb-8">
           {/* Icon */}
           <div className="mb-6">
-            <div className="w-16 h-16 bg-gradient-to-r from-green-400 to-green-500 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
+            <div className="w-16 h-16 bg-gradient-to-r from-green-400 to-green-500  flex items-center justify-center mx-auto shadow-lg">
               <MessageSquare className="w-8 h-8 text-white" />
             </div>
           </div>
@@ -104,7 +104,7 @@ export const Rate = () => {
         </div>
 
         {/* Feedback Form */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+        <div className="bg-white  shadow-lg border border-gray-200 p-8">
           {/* Rate Your Experience Section */}
           <div className="mb-8">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">
@@ -162,7 +162,7 @@ export const Rate = () => {
               value={feedback}
               onChange={(e) => setFeedback(e.target.value)}
               placeholder="Please share your detailed feedback here..."
-              className="w-full h-32 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-700 placeholder-gray-400"
+              className="w-full h-32 p-4 border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-700 placeholder-gray-400"
               rows={4}
             />
 
@@ -190,7 +190,7 @@ export const Rate = () => {
             <button
               onClick={handleSubmit}
               disabled={rating === 0 || FeedBackQuery.isPending}
-              className={`px-8 py-3 rounded-lg font-semibold transition-all duration-200 cursor-pointer ${
+              className={`disabled:opacity-50 px-8 py-3 rounded-lg font-semibold transition-all duration-200 cursor-pointer ${
                 rating === 0
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                   : "bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 transform hover:scale-105 shadow-lg hover:shadow-xl"
