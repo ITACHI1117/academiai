@@ -11,55 +11,61 @@ export function middleware(req: NextRequest) {
   const accessToken = req.cookies.get("accessToken")?.value;
   const pathname = req.nextUrl.pathname;
 
-  // Allow public routes to pass through
-  if (pathname === "/" || pathname.startsWith("/landing")) {
-    return NextResponse.next();
-  }
+  // Allow public routes and auth pages to pass through
+  if (pathname === "/" || pathname.startsWith("/landing") || pathname.startsWith("/auth")) {
+    // If user has valid token and tries to access auth pages, redirect them
+    if (accessToken && (pathname === "/auth/login" || pathname === "/auth/signup")) {
+      try {
+        const decoded = jwtDecode<JWTPayload>(accessToken);
+        
+        // Check if token is expired
+        if (decoded.exp * 1000 < Date.now()) {
+          // Token expired, clear cookies and allow access to auth page
+          const response = NextResponse.next();
+          response.cookies.delete("accessToken");
+          response.cookies.delete("refreshToken");
+          return response;
+        }
 
-  if (accessToken) {
-    try {
-      const decoded = jwtDecode<JWTPayload>(accessToken);
-      
-      // Check if token is expired
-      if (decoded.exp * 1000 < Date.now()) {
-        const response = NextResponse.redirect(new URL("/auth/login", req.url));
+        // Valid token, redirect away from auth pages
+        const role = decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+        const isAdmin = role === 'Admin';
+        return NextResponse.redirect(new URL(isAdmin ? "/admin/dashboard" : "/dashboard", req.url));
+      } catch (error) {
+        // Invalid token, clear cookies and allow access to auth page
+        const response = NextResponse.next();
         response.cookies.delete("accessToken");
         response.cookies.delete("refreshToken");
         return response;
       }
-
-      // Redirect authenticated users away from auth pages
-      if (pathname === "/auth/login" || pathname === "/auth/signup") {
-        const role = decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-        const isAdmin = role === 'Admin';
-        return NextResponse.redirect(new URL(isAdmin ? "/admin/dashboard" : "/dashboard", req.url));
-      }
-
-      // Admin routes protection
-      if (pathname.startsWith("/admin")) {
-        const role = decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-        const isAdmin = role === 'Admin';
-        if (!isAdmin) {
-          return NextResponse.redirect(new URL("/dashboard", req.url));
-        }
-      }
-    } catch (error) {
-      // Invalid token, clear cookies and redirect to login
-      const response = NextResponse.redirect(new URL("/auth/login", req.url));
-      response.cookies.delete("accessToken");
-      response.cookies.delete("refreshToken");
-      return response;
     }
-  } else {
-    // No token - protect all authenticated routes
-    if (
-      pathname.startsWith("/dashboard") ||
-      pathname.startsWith("/assessment") ||
-      pathname.startsWith("/rating") ||
-      pathname.startsWith("/admin")
-    ) {
+    return NextResponse.next();
+  }
+
+  // Protected routes - require valid token
+  if (!accessToken) {
+    return NextResponse.redirect(new URL("/auth/login", req.url));
+  }
+
+  try {
+    const decoded = jwtDecode<JWTPayload>(accessToken);
+    
+    // Check if token is expired
+    if (decoded.exp * 1000 < Date.now()) {
       return NextResponse.redirect(new URL("/auth/login", req.url));
     }
+
+    // Admin routes protection
+    if (pathname.startsWith("/admin")) {
+      const role = decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+      const isAdmin = role === 'Admin';
+      if (!isAdmin) {
+        return NextResponse.redirect(new URL("/dashboard", req.url));
+      }
+    }
+  } catch (error) {
+    // Invalid token, redirect to login
+    return NextResponse.redirect(new URL("/auth/login", req.url));
   }
   
   return NextResponse.next();
