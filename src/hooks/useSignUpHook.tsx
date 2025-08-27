@@ -30,18 +30,25 @@ export const useSignUpHook = () => {
   };
 
   useEffect(() => {
-    SignUpQuery.isError &&
+    if (SignUpQuery.isError) {
+      const error = SignUpQuery.error as any;
+      let errorMessage = "Something went wrong";
+      
+      if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error?.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Error creating account",
         variant: "destructive",
-        description: `${
-          SignUpQuery.error?.message ||
-          SignUpQuery.error?.data?.error ||
-          "Something went wrong"
-        }`,
+        description: errorMessage,
       });
-    SignUpQuery.isError &&
-      console.log("Error creating account", SignUpQuery.error);
+      console.log("Error creating account", error);
+    }
   }, [SignUpQuery.isError, SignUpQuery.error]);
 
   useEffect(() => {
@@ -52,7 +59,7 @@ export const useSignUpHook = () => {
         description: `Account Created Successfully`,
       });
     if (SignUpQuery.isSuccess) {
-      router.push("auth/login");
+      router.push("/auth/login");
       console.log("Account created successfully", SignUpQuery.data);
     }
   }, [SignUpQuery.isSuccess]);

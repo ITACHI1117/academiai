@@ -38,9 +38,14 @@ export const Convo = () => {
 
   const handleNext = async () => {
     // Call API to get next question
+    // For the last question, send placeholder text if blank
+    const userInput = currentQuestion === totalQuestions && answer.trim() === '' 
+      ? 'No specific preference' 
+      : answer;
+      
     await NextQuestionQuery.mutateAsync({
       conversationId: conversationId,
-      userInput: answer,
+      userInput: userInput,
     });
     setCurrentQuestion(currentQuestion + 1); //this is bacically used for the progress bar
     setAnswer(""); // Clear answer for next question
@@ -106,26 +111,34 @@ export const Convo = () => {
   return (
     <div className="bg-transparent">
       {/* Header with Progress */}
-      <div className="bg-white/80 backdrop-blur-md border-b border-gray-200 pt-10 md:pt-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between mb-4">
+      <div className="bg-card/95 backdrop-blur-md border-b pt-10 md:pt-20">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-primary flex items-center justify-center">
-                <MessageSquare className="w-4 h-4 text-white" />
+              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-sm">
+                <MessageSquare className="w-5 h-5 text-primary-foreground" />
               </div>
-              <span className="font-semibold text-gray-900">
-                Academic Profile Assessment
-              </span>
+              <div>
+                <h1 className="font-bold text-foreground text-lg">
+                  Academic Profile Assessment
+                </h1>
+                <p className="text-sm text-muted-foreground">Personalized program recommendations</p>
+              </div>
             </div>
-            <div className="text-sm text-gray-600">
-              Question {currentQuestion} of {totalQuestions}
+            <div className="text-right">
+              <div className="text-sm font-medium text-foreground">
+                Question {currentQuestion} of {totalQuestions}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {Math.round(progressPercentage)}% complete
+              </div>
             </div>
           </div>
 
           {/* Progress Bar */}
-          <div className="w-full bg-gray-200  h-2">
+          <div className="w-full bg-muted rounded-full h-3 shadow-inner">
             <div
-              className="bg-gradient-to-r from-green-300 to-green-600 h-2  transition-all duration-300"
+              className="bg-primary h-3 rounded-full transition-all duration-500 ease-out shadow-sm"
               style={{ width: `${progressPercentage}%` }}
             ></div>
           </div>
@@ -134,14 +147,19 @@ export const Convo = () => {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Question Section */}
-        <div className="bg-white shadow-lg border border-gray-200 p-8 mb-8">
-          <div className="flex items-start space-x-4 mb-6">
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-100 to-purple-100 flex items-center justify-center flex-shrink-0">
-              <Bot className="w-5 h-5 text-blue-600" />
+        <div className="bg-card shadow-xs border rounded-2xl p-8 mb-8">
+          <div className="flex items-start space-x-4">
+            <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0 mt-1">
+              <Bot className="w-6 h-6 text-primary" />
             </div>
             <div className="flex-1">
-              <div className="bg-primary p-6 border border-primary-200 ">
-                <p className="text-lg text-primary-foreground leading-relaxed">
+              <div className="mb-3">
+                <span className="text-sm font-medium text-primary bg-primary/10 px-3 py-1 rounded-full">
+                  AI Assistant
+                </span>
+              </div>
+              <div className="bg-primary/5 border border-primary/20 rounded-xl p-6">
+                <p className="text-lg text-foreground leading-relaxed font-medium">
                   {activeQuestion}
                 </p>
               </div>
@@ -150,35 +168,43 @@ export const Convo = () => {
         </div>
 
         {/* Answer Section */}
-        <div className="bg-white  shadow-lg border border-gray-200 p-8 mb-8">
+        <div className="bg-card shadow-xs border rounded-2xl p-8 mb-8">
           <div className="flex items-start space-x-4">
-            <div className="w-10 h-10 bg-gradient-to-r from-green-100 to-green-200  flex items-center justify-center flex-shrink-0 mt-2">
-              <User className="w-5 h-5 text-green-600" />
+            <div className="w-12 h-12 bg-accent rounded-xl flex items-center justify-center flex-shrink-0 mt-2">
+              <User className="w-6 h-6 text-accent-foreground" />
             </div>
             <div className="flex-1">
-              <label
-                htmlFor="answer"
-                className="block text-sm font-semibold text-gray-700 mb-3"
-              >
-                Your Answer
-              </label>
+              <div className="mb-3">
+                <span className="text-sm font-medium text-accent-foreground bg-accent px-3 py-1 rounded-full">
+                  Your Response
+                </span>
+              </div>
               <textarea
                 id="answer"
                 value={answer}
                 onChange={(e) => setAnswer(e.target.value)}
-                placeholder="Please provide detailed information about your academic background..."
-                className="w-full h-32 p-4 border border-gray-300  focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-700 placeholder-gray-400"
+                placeholder={currentQuestion === totalQuestions ? "Enter your preferred course of study (optional)..." : "Please provide detailed information..."}
+                className="w-full h-36 p-4 border rounded-xl focus:ring-2 focus:ring-primary focus:border-primary resize-none text-foreground placeholder-muted-foreground bg-background transition-all duration-200"
                 rows={4}
               />
-              <div className="flex justify-between items-center mt-2">
-                <div className="text-sm text-gray-500">
+              <div className="flex justify-between items-center mt-3">
+                <div className="text-sm text-muted-foreground">
                   {answer.length} characters
                 </div>
-                {answer.length > 0 && (
-                  <div className="text-sm text-green-600 font-medium">
-                    ✓ Answer provided
-                  </div>
-                )}
+                <div className="flex items-center space-x-3">
+                  {answer.length > 0 && (
+                    <div className="text-sm text-primary font-medium flex items-center">
+                      <div className="w-2 h-2 bg-primary rounded-full mr-2"></div>
+                      Answer provided
+                    </div>
+                  )}
+                  {currentQuestion === totalQuestions && answer.trim() === '' && (
+                    <div className="text-sm text-primary/70 font-medium flex items-center">
+                      <div className="w-2 h-2 bg-primary/70 rounded-full mr-2"></div>
+                      Optional field
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -189,10 +215,10 @@ export const Convo = () => {
           <button
             onClick={handlePrevious}
             disabled={currentQuestion === 1 || NextQuestionQuery.isPending}
-            className={`flex items-center px-6 py-3  font-semibold transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none ${
+            className={`flex items-center px-8 py-4 rounded-xl font-semibold transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none ${
               currentQuestion === 1
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                : "bg-white border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50 transform hover:scale-105"
+                ? "bg-muted text-muted-foreground cursor-not-allowed"
+                : "bg-card border-2 border-border text-foreground hover:bg-accent transform hover:scale-[1.02]"
             }`}
           >
             <ChevronLeft className="w-4 h-4 mr-2" />
@@ -212,22 +238,21 @@ export const Convo = () => {
 
           <button
             onClick={handleNext}
-            disabled={answer.trim().length === 0 || NextQuestionQuery.isPending}
-            className={`flex items-center px-6 py-3  font-semibold transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:pointer-events-none ${
-              answer.trim().length === 0
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                : currentQuestion === totalQuestions
-                ? "bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 transform hover:scale-105 shadow-lg hover:shadow-xl"
-                : "bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 transform hover:scale-105 shadow-lg hover:shadow-xl"
+            disabled={(currentQuestion < totalQuestions && answer.trim().length === 0) || NextQuestionQuery.isPending}
+            className={`flex items-center px-8 py-4 rounded-xl font-semibold transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:pointer-events-none ${
+              (currentQuestion < totalQuestions && answer.trim().length === 0)
+                ? "bg-muted text-muted-foreground cursor-not-allowed"
+                : "bg-primary text-primary-foreground hover:bg-primary/90 transform hover:scale-[1.02] shadow-sm hover:shadow-md"
             }`}
           >
-            {currentQuestion === totalQuestions
-              ? `${
-                  NextQuestionQuery.isPending
-                    ? "Submitting..."
-                    : "Complete Assessment"
-                }`
-              : `${NextQuestionQuery.isPending ? "Submitting..." : "Next"}`}
+            {NextQuestionQuery.isPending ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                {currentQuestion === totalQuestions ? "Generating Recommendations..." : "Processing..."}
+              </>
+            ) : (
+              currentQuestion === totalQuestions ? "Complete Assessment" : "Next"
+            )}
             <ChevronRight className="w-4 h-4 ml-2" />
           </button>
         </div>
