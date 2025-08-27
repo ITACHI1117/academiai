@@ -5,8 +5,6 @@ import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import React from "react";
 import { cn } from "@/lib/utils";
-import { useScroll } from "motion/react";
-
 const menuItems = [
   { name: "Features", href: "#link" },
   { name: "Solution", href: "#link" },
@@ -17,14 +15,13 @@ export const HeroHeader = () => {
   const [menuState, setMenuState] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
 
-  const { scrollYProgress } = useScroll();
-
   React.useEffect(() => {
-    const unsubscribe = scrollYProgress.on("change", (latest) => {
-      setScrolled(latest > 0.05);
-    });
-    return () => unsubscribe();
-  }, [scrollYProgress]);
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <header>
