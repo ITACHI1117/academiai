@@ -11,13 +11,21 @@ export function middleware(req: NextRequest) {
   const accessToken = req.cookies.get("accessToken")?.value;
   const pathname = req.nextUrl.pathname;
 
+  // Allow public routes to pass through
+  if (pathname === "/" || pathname.startsWith("/landing")) {
+    return NextResponse.next();
+  }
+
   if (accessToken) {
     try {
       const decoded = jwtDecode<JWTPayload>(accessToken);
       
       // Check if token is expired
       if (decoded.exp * 1000 < Date.now()) {
-        return NextResponse.redirect(new URL("/auth/login", req.url));
+        const response = NextResponse.redirect(new URL("/auth/login", req.url));
+        response.cookies.delete("accessToken");
+        response.cookies.delete("refreshToken");
+        return response;
       }
 
       // Redirect authenticated users away from auth pages
@@ -36,8 +44,11 @@ export function middleware(req: NextRequest) {
         }
       }
     } catch (error) {
-      // Invalid token, redirect to login
-      return NextResponse.redirect(new URL("/auth/login", req.url));
+      // Invalid token, clear cookies and redirect to login
+      const response = NextResponse.redirect(new URL("/auth/login", req.url));
+      response.cookies.delete("accessToken");
+      response.cookies.delete("refreshToken");
+      return response;
     }
   } else {
     // No token - protect all authenticated routes
@@ -56,11 +67,6 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/dashboard/:path*",
-    "/assessment/:path*",
-    "/rating/:path*",
-    "/admin/:path*",
-    "/auth/login",
-    "/auth/signup",
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

@@ -71,8 +71,7 @@ export const useLoginHook = () => {
           const role = decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
           const isAdmin = role === 'Admin';
           
-          // Store token in cookie
-          document.cookie = `accessToken=${token}; path=/; max-age=86400`;
+          // Token is already stored in cookie by auth service
           
           toast({
             title: "Welcome back!",

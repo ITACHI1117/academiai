@@ -26,9 +26,9 @@ export const signup = async (data: RegisterData) => {
 // login
 export const login = async (data: LoginData) => {
   try {
-    const response = axiosInstance.post("/authentication/login", data);
-    Cookies.set("accessToken", (await response).data.accessToken);
-    Cookies.set("refreshToken", (await response).data.refreshToken);
+    const response = await axiosInstance.post("/authentication/login", data);
+    Cookies.set("accessToken", response.data.accessToken);
+    Cookies.set("refreshToken", response.data.refreshToken);
 
     return response;
   } catch (error) {
@@ -36,18 +36,14 @@ export const login = async (data: LoginData) => {
   }
 };
 
-// login
+// logout
 export const logout = async () => {
   try {
     const refreshToken = Cookies.get("refreshToken");
     if (refreshToken) {
-      // const response = await axiosInstance.post("/authentication/logout", {
-      //   refreshToken: refreshToken,
-      // });
       Cookies.remove("accessToken");
       Cookies.remove("refreshToken");
-      window.location.reload();
-      // return response;
+      window.location.href = "/auth/login";
     }
   } catch (error) {
     throw error;
