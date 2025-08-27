@@ -9,6 +9,7 @@ import { useScroll } from "motion/react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { logout } from "@/services/auth.service";
 import { useToast } from "../ui/toast";
+import { usePathname } from "next/navigation";
 
 const menuItems = [
   { name: "Features", href: "#link" },
@@ -19,9 +20,12 @@ const menuItems = [
 export const NavBar = () => {
   const [menuState, setMenuState] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
+  const pathname = usePathname();
 
   const { scrollYProgress } = useScroll();
   const { toast } = useToast();
+  
+  const isDashboard = pathname?.startsWith('/dashboard');
 
   React.useEffect(() => {
     const unsubscribe = scrollYProgress.on("change", (latest) => {
@@ -31,9 +35,12 @@ export const NavBar = () => {
   }, [scrollYProgress]);
 
   const handleLogout = () => {
+    // Clear token cookie
+    document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+    
     logout()
       .then(() => {
-        window.location.reload();
+        window.location.href = '/auth/login';
       })
       .catch((err) => {
         toast({
@@ -41,6 +48,8 @@ export const NavBar = () => {
           variant: "destructive",
         });
         console.log("Error logging out", err);
+        // Redirect anyway
+        window.location.href = '/auth/login';
       });
   };
 
@@ -50,7 +59,7 @@ export const NavBar = () => {
         data-state={menuState && "active"}
         className={cn(
           "fixed z-20 w-full border-b transition-colors duration-150",
-          scrolled && "bg-background/50 backdrop-blur-3xl"
+          (scrolled || isDashboard) && "bg-background/50 backdrop-blur-3xl"
         )}
       >
         <div className="mx-auto max-w-5xl px-6 transition-all duration-300">

@@ -5,6 +5,8 @@ import { LoginData } from "@/services/auth.service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
+import { jwtDecode } from "jwt-decode";
 
 export const useLoginHook = () => {
   const {
@@ -14,6 +16,7 @@ export const useLoginHook = () => {
   } = useForm({ resolver: zodResolver(loginSchema) });
 
   const { toast } = useToast();
+  const router = useRouter();
 
   const LoginQuery = useLogin();
 
@@ -30,32 +33,67 @@ export const useLoginHook = () => {
   };
 
   useEffect(() => {
-    LoginQuery.isError &&
+    if (LoginQuery.isError) {
+      const error = LoginQuery.error as any;
+      let errorMessage = "Something went wrong";
+      
+      if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error?.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error?.response?.status === 400 || error?.response?.status === 401) {
+        errorMessage = "Invalid email or password";
+      } else if (error?.response?.status === 404) {
+        errorMessage = "Service not available";
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
-        title: "Error while trying to Login",
+        title: "Login failed",
         variant: "destructive",
-        description: `${
-          LoginQuery.error?.message ||
-          LoginQuery.error?.data?.error ||
-          "Something went wrong"
-        }`,
+        description: errorMessage,
       });
-    LoginQuery.isError &&
-      console.log("Error while trying to Login", LoginQuery.error);
+      console.log("Error while trying to Login", error);
+    }
   }, [LoginQuery.isError, LoginQuery.error]);
 
   useEffect(() => {
-    LoginQuery.isSuccess &&
-      toast({
-        title: "Welcome back!",
-        variant: "success",
-        // description: `Account Created Successfully`,
-      });
-    if (LoginQuery.isSuccess) {
-      console.log("Welcome back!", LoginQuery.data);
-      window.location.reload();
+    if (LoginQuery.isSuccess && LoginQuery.data) {
+      const response = LoginQuery.data.data;
+      const token = response.accessToken || response.token;
+      
+      if (token) {
+        try {
+          const decoded = jwtDecode(token);
+          console.log('Decoded JWT:', decoded);
+          
+          const role = decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+          const isAdmin = role === 'Admin';
+          
+          // Store token in cookie
+          document.cookie = `accessToken=${token}; path=/; max-age=86400`;
+          
+          toast({
+            title: "Welcome back!",
+            variant: "success",
+          });
+          
+          // Redirect based on admin role in JWT
+          if (isAdmin) {
+            console.log('Redirecting to admin dashboard');
+            router.push('/admin/dashboard');
+          } else {
+            console.log('Redirecting to user dashboard');
+            router.push('/dashboard');
+          }
+        } catch (error) {
+          console.error('JWT decode error:', error);
+          router.push('/dashboard');
+        }
+      }
     }
-  }, [LoginQuery.isSuccess]);
+  }, [LoginQuery.isSuccess, LoginQuery.data, router]);
 
   return { register, handleSubmit, errors, onSubmit, LoginQuery };
 };
