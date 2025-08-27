@@ -6,9 +6,12 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useToast } from "./ui/toast";
 import { useLoginHook } from "@/hooks/useLoginHook";
+import { Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { useState } from "react";
 
 export default function LoginPage() {
   const { toast } = useToast();
+  const [showPassword, setShowPassword] = useState(false);
   const handleGoogleSignIn = () => {
     toast({
       title: "Coming Soon!",
@@ -35,6 +38,10 @@ export default function LoginPage() {
       >
         <div className="p-8 pb-6">
           <div>
+            <Link href="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4">
+              <ArrowLeft size={16} />
+              Back to home
+            </Link>
             <Link href="/" aria-label="go home">
               <LogoIcon />
             </Link>
@@ -130,12 +137,21 @@ export default function LoginPage() {
                   </Link>
                 </Button>
               </div>
-              <Input
-                type="password"
-                {...register("password")}
-                id="pwd"
-                className="input sz-md variant-mixed"
-              />
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  {...register("password")}
+                  id="pwd"
+                  className="input sz-md variant-mixed pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
               {errors.password && (
                 <p className="text-sm text-red-600 pt-3">
                   {errors.password.message}
